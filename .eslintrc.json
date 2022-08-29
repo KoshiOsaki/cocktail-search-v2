@@ -1,0 +1,27 @@
+{
+  "root": true,
+  // parser を設定
+  "parser": "@typescript-eslint/parser",
+  // tsconfig.json のパスを設定
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier"
+  ],
+  "plugins": ["@typescript-eslint", "import", "unused-imports"],
+  "rules": {
+    "semi": "error",
+    "no-var": "error",
+    "sort-imports": 0,
+    "import/order": [],
+    // 使用されていない import に関するルール
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": ["warn", { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }]
+  }
+}
