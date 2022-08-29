@@ -3,11 +3,11 @@ import { collection, getDocs, query } from 'firebase/firestore';
 import Link from 'next/link';
 import { ReactNode, useEffect, useState } from 'react';
 import { MdAddCircleOutline } from 'react-icons/md';
-import { db } from '../../firebase/init';
-import { Cocktail, cocktailFromDoc, includeMaterialFromDoc, Material } from '../../types/cocktail';
-import { CocktailCard } from '../uiParts/CocktailCard';
-import { Layout } from '../uiParts/Layout';
-import { Meta } from '../uiParts/Meta';
+import { db } from '../../../firebase/init';
+import { Cocktail, cocktailFromDoc, includeMaterialFromDoc, Material } from '../../../types/cocktail';
+import { Layout } from '../../uiParts/Layout';
+import { DefaultCocktailTab } from './DefaultCocktailTab';
+import { OriginalCocktailTab } from './OriginalCocktailTab';
 
 export const IndexPage = () => {
   const mydata: any = [];
@@ -73,7 +73,6 @@ export const IndexPage = () => {
 
   return (
     <Layout>
-      <Meta />
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="既存カクテル" />
@@ -81,10 +80,10 @@ export const IndexPage = () => {
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
-        Item One
+        <DefaultCocktailTab cocktailList={cocktailList} />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Item Two
+        <OriginalCocktailTab cocktailList={cocktailList} />
       </TabPanel>
 
       <div className="inline-block my-3">
@@ -93,25 +92,6 @@ export const IndexPage = () => {
         <Link href="/explain">
           <a className="ml-10 align-bottom underline my-3">サイト説明</a>
         </Link>
-      </div>
-
-      <div className="grid grid-cols-3 sm:block">
-        {cocktailList.map((cocktail) => (
-          <CocktailCard
-            key={cocktail.id}
-            id={cocktail.id}
-            image={cocktail.imagePath || '/noimage.png'}
-            name={cocktail.name}
-            way={cocktail.way}
-            glass={cocktail.glass}
-            // material={cocktail.material}
-            garnish={cocktail.garnish!}
-            option={cocktail.option!}
-            note=""
-            author="大崎"
-            able={true}
-          />
-        ))}
       </div>
     </Layout>
   );

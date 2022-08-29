@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { IndexPage } from '../components/pages';
+import { IndexPage } from '../components/pages/Index';
 
 const Index: NextPage = () => {
   return <IndexPage />;
