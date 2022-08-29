@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
-import { Layout } from '../components/Layout';
-import { Meta } from '../components/Meta';
+import { Layout } from '../components/uiParts/Layout';
+import { Meta } from '../components/uiParts/Meta';
 
 const Explain: NextPage = () => {
   return (
