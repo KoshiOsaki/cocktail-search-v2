@@ -1,8 +1,7 @@
-import { Box, Tab, Tabs, Typography } from '@mui/material';
+import { Autocomplete, Box, IconButton, Radio, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { collection, getDocs, query } from 'firebase/firestore';
-import Link from 'next/link';
 import { ReactNode, useEffect, useState } from 'react';
-import { MdAddCircleOutline } from 'react-icons/md';
+import { MdAddCircleOutline, MdSearch } from 'react-icons/md';
 import { db } from '../../../firebase/init';
 import { Cocktail, cocktailFromDoc, includeMaterialFromDoc, Material } from '../../../types/cocktail';
 import { Layout } from '../../uiParts/Layout';
@@ -46,26 +45,12 @@ export const IndexPage = () => {
     })();
   }, []);
 
-  interface TabPanelProps {
-    children?: ReactNode;
-    index: number;
-    value: number;
-  }
-
-  function TabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
-
-    return (
-      <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
-        {value === index && (
-          <Box sx={{ p: 3 }}>
-            <Typography>{children}</Typography>
-          </Box>
-        )}
-      </div>
-    );
-  }
   const [value, setValue] = useState(0);
+  const [selectedValue, setSelectedValue] = useState('a');
+
+  const handleSearchItem = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedValue(event.target.value);
+  };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -73,11 +58,46 @@ export const IndexPage = () => {
 
   return (
     <Layout>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+      <div className="flex ">
+        <div className="flex items-center">
+          <Radio checked={selectedValue === 'a'} onChange={handleSearchItem} value="a" name="radio-buttons" inputProps={{ 'aria-label': 'A' }} />
+          <Typography>カクテル名</Typography>
+        </div>
+        <div className="flex items-center">
+          <Radio checked={selectedValue === 'b'} onChange={handleSearchItem} value="b" name="radio-buttons" inputProps={{ 'aria-label': 'A' }} />
+          <Typography>材料名</Typography>
+        </div>
+      </div>
+      <div className="flex">
+        <Autocomplete
+          freeSolo
+          id="free-solo-2-demo"
+          disableClearable
+          options={['123', '222']}
+          sx={{ width: '300px' }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              InputProps={{
+                ...params.InputProps,
+                type: 'search',
+              }}
+            />
+          )}
+        />
+        <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+          <MdSearch />
+        </IconButton>
+      </div>
+
+      <Box display="flex" justifyContent="between" sx={{ borderBottom: 1, borderColor: 'divider', textColor: 'white' }}>
+        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" textColor="inherit">
           <Tab label="既存カクテル" />
           <Tab label="オリジナルカクテル" />
         </Tabs>
+        <IconButton color="primary">
+          <MdAddCircleOutline />
+        </IconButton>
       </Box>
       <TabPanel value={value} index={0}>
         <DefaultCocktailTab cocktailList={cocktailList} />
@@ -85,14 +105,26 @@ export const IndexPage = () => {
       <TabPanel value={value} index={1}>
         <OriginalCocktailTab cocktailList={cocktailList} />
       </TabPanel>
-
-      <div className="inline-block my-3">
-        <MdAddCircleOutline />
-
-        <Link href="/explain">
-          <a className="ml-10 align-bottom underline my-3">サイト説明</a>
-        </Link>
-      </div>
     </Layout>
+  );
+};
+
+interface TabPanelProps {
+  children?: ReactNode;
+  index: number;
+  value: number;
+}
+
+const TabPanel = (props: TabPanelProps) => {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
   );
 };

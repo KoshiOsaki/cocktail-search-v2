@@ -33,11 +33,6 @@ export const OriginalCocktailTab = (props: Props) => {
           />
         ))}
       </div>
-      <div className="h-[300px]">ああ</div>
-      <div className="h-[300px]">ああ</div>
-      <div className="h-[300px]">ああ</div>
-      <div className="h-[300px]">ああ</div>
-      <div className="h-[300px]">ああ</div>
     </>
   );
 };
