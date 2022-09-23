@@ -27,6 +27,7 @@ export const IndexPage = () => {
     return _materialList;
   };
 
+  //rubyの時も
   useEffect(() => {
     (async () => {
       const _cocktailList: Cocktail[] = [];
