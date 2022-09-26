@@ -11,7 +11,7 @@ export const Layout: FC = ({ children }) => {
   return (
     <>
       <Meta />
-      <body className="bg-slate-200 overflow-hidden h-screen flex-col flex justify-between text-white">
+      <div className="bg-slate-200 overflow-hidden h-screen flex-col flex justify-between text-white">
         <header className="px-3 py-5 w-full ">
           <Link href="/">
             <a className="text-4xl font-bold text-fuchsia-800 cursor-pointer">カクテル検索くん</a>
@@ -44,7 +44,7 @@ export const Layout: FC = ({ children }) => {
         </header>
         <main className="overflow-y-auto flex-grow">{children}</main>
         <footer className="bg-black text-blue-600 h-10 overflow-hidden"></footer>
-      </body>
+      </div>
     </>
   );
 };
