@@ -1,5 +1,6 @@
 import { Autocomplete, Box, IconButton, Radio, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { ReactNode, useEffect, useState } from 'react';
+import { FiFilter } from 'react-icons/fi';
 import { MdAddCircleOutline } from 'react-icons/md';
 import { useCocktails } from '../../../hooks/useCocktails';
 import { useDebounce } from '../../../hooks/useDebounce';
@@ -62,6 +63,9 @@ export const IndexPage = () => {
           sx={{ width: '300px' }}
           renderInput={(params) => <TextField {...params} label="" />}
         />
+        <IconButton type="button" sx={{ p: '10px' }} aria-label="sort">
+          <FiFilter />
+        </IconButton>
       </div>
 
       <Box display="flex" justifyContent="between" sx={{ borderBottom: 1, borderColor: 'divider', textColor: 'white' }}>
