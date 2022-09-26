@@ -1,7 +1,8 @@
 import { Autocomplete, Box, IconButton, Radio, Tab, Tabs, TextField, Typography } from '@mui/material';
-import { ReactNode, useState } from 'react';
-import { MdAddCircleOutline, MdSearch } from 'react-icons/md';
+import { ReactNode, useEffect, useState } from 'react';
+import { MdAddCircleOutline } from 'react-icons/md';
 import { useCocktails } from '../../../hooks/useCocktails';
+import { useDebounce } from '../../../hooks/useDebounce';
 import { Layout } from '../../uiParts/Layout';
 import { DefaultCocktailTab } from './DefaultCocktailTab';
 import { OriginalCocktailTab } from './OriginalCocktailTab';
@@ -18,6 +19,8 @@ export const IndexPage = () => {
 
   const [searchInput, setSearchInput] = useState('');
 
+  const debouncedInputText = useDebounce(searchInput, 500);
+
   const handleSearchItem = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedSearchItem(Number(e.target.value));
   };
@@ -26,11 +29,13 @@ export const IndexPage = () => {
     setValue(newValue);
   };
 
-  const onClickSearch = () => {
-    if (searchInput.length > 0) {
+  useEffect(() => {
+    if (debouncedInputText) {
+      console.log('絞り込み');
     } else {
+      console.log('全表示');
     }
-  };
+  }, [debouncedInputText]);
 
   return (
     <Layout>
@@ -57,9 +62,6 @@ export const IndexPage = () => {
           sx={{ width: '300px' }}
           renderInput={(params) => <TextField {...params} label="" />}
         />
-        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={onClickSearch}>
-          <MdSearch />
-        </IconButton>
       </div>
 
       <Box display="flex" justifyContent="between" sx={{ borderBottom: 1, borderColor: 'divider', textColor: 'white' }}>
