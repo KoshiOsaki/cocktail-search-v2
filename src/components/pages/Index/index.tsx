@@ -1,12 +1,27 @@
-import { Autocomplete, Box, IconButton, Radio, Tab, Tabs, TextField, Typography } from '@mui/material';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import { Autocomplete, Box, Checkbox, IconButton, MenuItem, Modal, Radio, Select, Slide, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { ReactNode, useEffect, useState } from 'react';
 import { FiFilter } from 'react-icons/fi';
 import { MdAddCircleOutline } from 'react-icons/md';
 import { useCocktails } from '../../../hooks/useCocktails';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { Layout } from '../../uiParts/Layout';
+import { CocktailAddModal } from './CocktailAddModal';
 import { DefaultCocktailTab } from './DefaultCocktailTab';
 import { OriginalCocktailTab } from './OriginalCocktailTab';
+
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 export const IndexPage = () => {
   const { cocktailList } = useCocktails();
@@ -14,11 +29,18 @@ export const IndexPage = () => {
   const [data, setData] = useState();
   const [findName, setFindName] = useState('');
   const [findMa, setFindMa] = useState('');
+  const [isOpenAddModal, setIsOpenAddModal] = useState(false);
 
   const [value, setValue] = useState(0);
   const [selectedSearchItem, setSelectedSearchItem] = useState(0);
 
   const [searchInput, setSearchInput] = useState('');
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const [sortWay, setSortWay] = useState('');
+  const [sortLength, setSortLength] = useState(0);
+  const [sortModalOpen, setSortModalOpen] = useState(false);
 
   const debouncedInputText = useDebounce(searchInput, 500);
 
@@ -28,6 +50,10 @@ export const IndexPage = () => {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+  };
+
+  const handleSortWay = (e: any) => {
+    setSortWay(e.target.value);
   };
 
   useEffect(() => {
@@ -63,17 +89,55 @@ export const IndexPage = () => {
           sx={{ width: '300px' }}
           renderInput={(params) => <TextField {...params} label="" />}
         />
-        <IconButton type="button" sx={{ p: '10px' }} aria-label="sort">
+        <IconButton
+          type="button"
+          sx={{ p: '10px' }}
+          aria-label="sort"
+          onClick={() => {
+            setSortModalOpen(true);
+          }}
+        >
           <FiFilter />
         </IconButton>
       </div>
+      <Modal
+        open={sortModalOpen}
+        onClose={() => {
+          setSortModalOpen(false);
+        }}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Select labelId="demo-simple-select-label" id="demo-simple-select" value={sortWay} label="技法" onChange={handleSortWay}>
+            <MenuItem value={10}>Ten</MenuItem>
+            <MenuItem value={20}>Twenty</MenuItem>
+            <MenuItem value={30}>Thirty</MenuItem>
+          </Select>
+          <div className="flex ">
+            <div className="flex items-center">
+              <Checkbox icon={<RadioButtonUncheckedIcon />} checkedIcon={<RadioButtonCheckedIcon />} />
+              <Typography>ロング</Typography>
+            </div>
+            <div className="flex items-center">
+              <Checkbox icon={<RadioButtonUncheckedIcon />} checkedIcon={<RadioButtonCheckedIcon />} />
+              <Typography>材料名</Typography>
+            </div>
+          </div>
+        </Box>
+      </Modal>
 
       <Box display="flex" justifyContent="between" sx={{ borderBottom: 1, borderColor: 'divider', textColor: 'white' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" textColor="inherit">
           <Tab label="既存カクテル" />
           <Tab label="オリジナルカクテル" />
         </Tabs>
-        <IconButton color="primary">
+        <IconButton
+          color="primary"
+          onClick={() => {
+            setIsOpenAddModal(true);
+          }}
+        >
           <MdAddCircleOutline />
         </IconButton>
       </Box>
@@ -83,6 +147,13 @@ export const IndexPage = () => {
       <TabPanel value={value} index={1}>
         <OriginalCocktailTab cocktailList={cocktailList} />
       </TabPanel>
+      <div>
+        <Slide direction="up" in={isOpenAddModal} mountOnEnter unmountOnExit>
+          <div className="absolute z-10 top-0 left-0">
+            <CocktailAddModal setIsOpenAddModal={setIsOpenAddModal} />
+          </div>
+        </Slide>
+      </div>
     </Layout>
   );
 };
