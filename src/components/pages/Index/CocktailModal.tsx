@@ -3,9 +3,12 @@ import {
   AccordionSummary,
   Box,
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogTitle,
+  FormControlLabel,
+  FormGroup,
   IconButton,
   MenuItem,
   Modal,
@@ -13,13 +16,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import Image from 'next/image';
 import { useState } from 'react';
 import { MdDelete, MdEdit, MdExpandMore } from 'react-icons/md';
 import { db } from '../../../firebase/init';
 import { Cocktail, Material } from '../../../types/cocktail';
-import MaterialEdit from './MaterialEdit';
+import { MaterialAddBox, MaterialEditBox } from './MaterialEdit';
 
 interface Props {
   cocktail: Cocktail;
@@ -28,10 +31,35 @@ interface Props {
   fetchDisplayData: () => void;
 }
 
+const deleteMaterialList = async (cocktail: Cocktail, tmpDeleteMaterialIdList: string[]) => {
+  if (!cocktail.id) return;
+  if (tmpDeleteMaterialIdList.length > 0) {
+    for (const materialId of tmpDeleteMaterialIdList) {
+      const _docRef = doc(db, 'cocktails', cocktail.id, 'materials', materialId);
+      await deleteDoc(_docRef);
+    }
+  }
+};
+
+const registerMaterialList = async (cocktail: Cocktail, tmpMaterialList: Material[]) => {
+  if (!cocktail.id) return;
+  for (const material of tmpMaterialList) {
+    if (!material.id) {
+      const _collectionRef = collection(db, 'cocktails', cocktail.id, 'materials');
+      await addDoc(_collectionRef, material);
+    } else {
+      const _docRef = doc(db, 'cocktails', cocktail.id, 'materials', material.id);
+      await setDoc(_docRef, material);
+    }
+  }
+};
+
 export const CocktailModal = (props: Props) => {
   const { cocktail, open, onClose, fetchDisplayData } = props;
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState<boolean>(false);
+  const [tmpMaterialList, setTmpMaterialList] = useState<Material[]>(cocktail.material);
+  const [tmpDeleteMaterialIdList, setTmpDeleteMaterialIdList] = useState<string[]>([]);
 
   const [name, setName] = useState<string>(cocktail.name);
   const [way, setWay] = useState<string>(cocktail.way);
@@ -39,24 +67,7 @@ export const CocktailModal = (props: Props) => {
   const [material, setMaterial] = useState<Material[]>(cocktail.material);
   const [garnish, setGarnish] = useState<string>(cocktail.garnish);
   const [option, setOption] = useState<string>(cocktail.option);
-
-  const onChangeName = (str: string) => {
-    setName(str);
-  };
-  const onChangeWay = (str: string) => {
-    console.log('set');
-    setWay(str);
-  };
-  const onChangeGlass = (str: string) => {
-    setGlass(str);
-  };
-  const onChangeMaterial = (e: any) => {};
-  const onChangeGarnish = (str: string) => {
-    setGarnish(str);
-  };
-  const onChangeOption = (str: string) => {
-    setOption(str);
-  };
+  const [isOriginal, setIsOriginal] = useState<boolean>(cocktail.isOriginal);
 
   const onClickUpdate = async () => {
     const now = new Date();
@@ -73,10 +84,13 @@ export const CocktailModal = (props: Props) => {
       garnish: _garnish,
       option: _option,
       imagePath: cocktail.imagePath,
-      isOriginal: cocktail.isOriginal,
-      author: cocktail.author,
+      isOriginal,
+      author: author ?? '名無し',
     };
     await setDoc(_docRef, newCocktail);
+    await deleteMaterialList(cocktail, tmpDeleteMaterialIdList);
+    await registerMaterialList(cocktail, tmpMaterialList);
+    await fetchDisplayData();
     reset();
     setIsEditMode(false);
   };
@@ -112,14 +126,28 @@ export const CocktailModal = (props: Props) => {
       <Box bgcolor="white">
         <div className="flex flex-col gap-y-4 p-4 w-[90vw] h-[70vh] overflow-y-scroll">
           {isEditMode ? (
+            // 編集モード
             <>
-              <TextField id="outlined-basic" label="カクテル名" value={name} size="small" onChange={(e) => onChangeName(e.target.value)} />
+              <TextField id="outlined-basic" label="カクテル名" value={name} size="small" onChange={(e) => setName(e.target.value)} />
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isOriginal}
+                      onChange={(e) => {
+                        setIsOriginal(!isOriginal);
+                      }}
+                    />
+                  }
+                  label="オリジナル"
+                />
+              </FormGroup>
               <div>
                 <Typography style={{ color: 'gray', fontSize: '10px' }}>技法</Typography>
                 <Select
                   size="small"
                   onChange={(e) => {
-                    onChangeWay(e.target.value);
+                    setWay(e.target.value);
                   }}
                   value={way}
                 >
@@ -134,7 +162,7 @@ export const CocktailModal = (props: Props) => {
                 <Select
                   size="small"
                   onChange={(e) => {
-                    onChangeGlass(e.target.value);
+                    setGlass(e.target.value);
                   }}
                   value={glass}
                 >
@@ -149,14 +177,28 @@ export const CocktailModal = (props: Props) => {
                   <MenuItem value="?">?</MenuItem>
                 </Select>
               </div>
-              <MaterialEdit material={material} setMaterial={setMaterial} />
-              <TextField id="outlined-basic" label="ガーニッシュ" value={garnish} size="small" onChange={(e) => onChangeGarnish(e.target.value)} />
-              <TextField id="outlined-basic" label="オプション" value={option} size="small" onChange={(e) => onChangeOption(e.target.value)} />
+              <div className="flex flex-col space-y-2">
+                <MaterialAddBox tmpMaterialList={tmpMaterialList} setTmpMaterialList={setTmpMaterialList} />
+                {tmpMaterialList.map((material, index) => (
+                  <MaterialEditBox
+                    key={index}
+                    material={material}
+                    tmpMaterialList={tmpMaterialList}
+                    setTmpMaterialList={setTmpMaterialList}
+                    tmpDeleteMaterialIdList={tmpDeleteMaterialIdList}
+                    setTmpDeleteMaterialIdList={setTmpDeleteMaterialIdList}
+                    index={index}
+                  />
+                ))}
+              </div>
+
+              <TextField id="outlined-basic" label="ガーニッシュ" value={garnish} size="small" onChange={(e) => setGarnish(e.target.value)} />
+              <TextField id="outlined-basic" label="オプション" value={option} size="small" onChange={(e) => setOption(e.target.value)} />
 
               <div className="flex justify-between">
                 <div></div>
                 <div className="flex">
-                  <Button>更新</Button>
+                  <Button onClick={onClickUpdate}>更新</Button>
                   <Button
                     onClick={() => {
                       reset();
@@ -169,11 +211,28 @@ export const CocktailModal = (props: Props) => {
               </div>
             </>
           ) : (
+            // 通常表示
             <>
               <Typography fontWeight="bold" textAlign="center">
                 {name}
               </Typography>
-              <Image src={cocktail.imagePath || '/noimage.png'} width="250px" height="250px" />
+              <div className="relative min-w-[150px] min-h-[150px] mx-auto">
+                <Image src={cocktail.imagePath || '/noimage.png'} layout="fill" objectFit="contain" alt="logo" />
+              </div>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      disabled
+                      checked={isOriginal}
+                      onChange={(e) => {
+                        setIsOriginal(!isOriginal);
+                      }}
+                    />
+                  }
+                  label="オリジナル"
+                />
+              </FormGroup>
               <div className="flex">
                 <div className="flex flex-col w-1/2">
                   <Typography style={{ color: 'gray', fontSize: '10px' }}>技法</Typography>

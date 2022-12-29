@@ -55,15 +55,14 @@ const fetchCocktailList = async () => {
 
 export const IndexPage = () => {
   const [cocktailList, setCocktailList] = useState<Cocktail[]>([]);
-  const [data, setData] = useState();
-  const [findName, setFindName] = useState('');
-  const [findMa, setFindMa] = useState('');
+  const [filteredCocktailList, setFilteredCocktailList] = useState<Cocktail[]>([]);
   const [isOpenAddModal, setIsOpenAddModal] = useState(false);
 
   const [value, setValue] = useState(0);
   const [selectedSearchItem, setSelectedSearchItem] = useState(0);
 
   const [searchInput, setSearchInput] = useState('');
+  const [cocktailNameList, setCocktailNameList] = useState<string[]>([]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -91,6 +90,8 @@ export const IndexPage = () => {
     if (apiType === ApiType.FIREBASE) {
       const _cocktailList = await fetchCocktailList();
       setCocktailList(_cocktailList);
+      setFilteredCocktailList(_cocktailList);
+      setCocktailNameList(_cocktailList.map((cocktail) => cocktail.name));
     } else if (apiType === ApiType.LOCALHOST) {
       const { data } = await axios.get('http://localhost:3000/api/v1/cocktails', {
         params: {},
@@ -103,9 +104,12 @@ export const IndexPage = () => {
 
   useEffect(() => {
     if (debouncedInputText) {
-      console.log('絞り込み');
+      const _cocktailList = cocktailList.filter((cocktail) => {
+        return cocktail.name.includes(debouncedInputText);
+      });
+      setFilteredCocktailList(_cocktailList);
     } else {
-      console.log('全表示');
+      setFilteredCocktailList(cocktailList);
     }
   }, [debouncedInputText]);
 
@@ -131,7 +135,7 @@ export const IndexPage = () => {
           freeSolo
           id="free-solo-2-demo"
           disableClearable
-          options={['123', '222']}
+          options={cocktailNameList}
           sx={{ width: '300px' }}
           renderInput={(params) => <TextField {...params} label="" />}
         />
@@ -180,7 +184,7 @@ export const IndexPage = () => {
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
-        <DefaultCocktailTab cocktailList={cocktailList} fetchDisplayData={fetchDisplayData} />
+        <DefaultCocktailTab cocktailList={filteredCocktailList} fetchDisplayData={fetchDisplayData} />
       </TabPanel>
       <TabPanel value={value} index={1}>
         <OriginalCocktailTab cocktailList={cocktailList} />
@@ -188,7 +192,7 @@ export const IndexPage = () => {
       <div>
         <Slide direction="up" in={isOpenAddModal} mountOnEnter unmountOnExit>
           <div className="absolute z-10 top-0 left-0">
-            <CocktailAddModal setIsOpenAddModal={setIsOpenAddModal} />
+            <CocktailAddModal setIsOpenAddModal={setIsOpenAddModal} fetchDisplayData={fetchDisplayData} />
           </div>
         </Slide>
       </div>

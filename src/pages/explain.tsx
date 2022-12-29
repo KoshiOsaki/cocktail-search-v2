@@ -50,6 +50,8 @@ const Explain: NextPage = () => {
             <li>・画像の投稿</li>
             <li>・コメント機能</li>
             <li>・カクテルタイプでの絞り込み</li>
+            <li>・サジェストを出す</li>
+            <li>・材料名検索</li>
           </ul>
         </div>
         <Typography fontSize="14px">【要望、コメントはこちらから送ってください】</Typography>

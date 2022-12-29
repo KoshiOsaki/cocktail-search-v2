@@ -3,35 +3,6 @@ import { useEffect, useState } from 'react';
 import { MdCheck, MdDeleteOutline } from 'react-icons/md';
 import { Material } from '../../../types/cocktail';
 
-interface Props {
-  material: Material[];
-  setMaterial: React.Dispatch<React.SetStateAction<Material[]>>;
-}
-
-const MaterialEdit = (props: Props) => {
-  const { material, setMaterial } = props;
-  const [tmpMaterialList, setTmpMaterialList] = useState<Material[]>(material);
-  const [tmpDeleteMaterialIdList, setTmpDeleteMaterialIdList] = useState<string[]>([]);
-  return (
-    <div className="flex flex-col space-y-2">
-      <MaterialAddBox tmpMaterialList={tmpMaterialList} setTmpMaterialList={setTmpMaterialList} />
-      {tmpMaterialList.map((material, index) => (
-        <MaterialEditBox
-          key={index}
-          material={material}
-          tmpMaterialList={tmpMaterialList}
-          setTmpMaterialList={setTmpMaterialList}
-          tmpDeleteMaterialIdList={tmpDeleteMaterialIdList}
-          setTmpDeleteMaterialIdList={setTmpDeleteMaterialIdList}
-          index={index}
-        />
-      ))}
-    </div>
-  );
-};
-
-export default MaterialEdit;
-
 interface MaterialEditBoxProps {
   material: Material;
   tmpMaterialList: Material[];
@@ -41,7 +12,7 @@ interface MaterialEditBoxProps {
   index: number;
 }
 
-const MaterialEditBox = (props: MaterialEditBoxProps) => {
+export const MaterialEditBox = (props: MaterialEditBoxProps) => {
   const { material, tmpMaterialList, setTmpMaterialList, tmpDeleteMaterialIdList, setTmpDeleteMaterialIdList, index } = props;
   const [tmpName, setTmpName] = useState<string>(material.name);
   const [tmpQuentity, setTmpQuantity] = useState<string>(material.quantity ?? '');
@@ -82,7 +53,7 @@ interface MaterialAddBoxProps {
   setTmpMaterialList: React.Dispatch<React.SetStateAction<Material[]>>;
 }
 
-const MaterialAddBox = (props: MaterialAddBoxProps) => {
+export const MaterialAddBox = (props: MaterialAddBoxProps) => {
   const { tmpMaterialList, setTmpMaterialList } = props;
   const [tmpName, setTmpName] = useState<string>('');
   const [tmpQuentity, setTmpQuantity] = useState<string>('');
