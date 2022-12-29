@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Cocktail } from '../../../types/cocktail';
 import { CocktailCard } from './CocktailCard';
 
@@ -8,10 +9,15 @@ interface Props {
 
 export const DefaultCocktailTab = (props: Props) => {
   const { cocktailList, fetchDisplayData } = props;
+  const [defaultCocktailList, setDefaultCocktailList] = useState<Cocktail[]>([]);
+  useEffect(() => {
+    const _defaultCocktailList = props.cocktailList.filter((cocktail) => cocktail.isOriginal == false);
+    setDefaultCocktailList(_defaultCocktailList);
+  }, []);
   return (
     <>
       <div className="flex flex-col space-y-3">
-        {cocktailList.map((cocktail, index) => (
+        {defaultCocktailList.map((cocktail, index) => (
           <CocktailCard key={index} cocktail={cocktail} fetchDisplayData={fetchDisplayData} />
         ))}
       </div>
