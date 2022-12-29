@@ -84,7 +84,8 @@ export const IndexPage = () => {
     setSortWay(e.target.value);
   };
 
-  const apiType = process.env.NEXT_PUBLIC_API_TYPE;
+  // const apiType = process.env.NEXT_PUBLIC_API_TYPE;
+  const apiType = 'firebase';
 
   const fetchDisplayData = async () => {
     if (apiType === ApiType.FIREBASE) {
