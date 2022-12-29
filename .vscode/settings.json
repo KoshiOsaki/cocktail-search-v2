@@ -7,7 +7,8 @@
   "editor.formatOnSave": true, // 保存時にフォーマッタを走らせる
   "editor.codeActionsOnSave": {
     "source.organizeImports": true, //保存時に import を整理する
-    "source.fixAll.eslint": true // 保村時に ESLint で修正する
+    "source.fixAll.eslint": true, // 保存時に ESLint で修正する
+    "source.fixAll.stylelint": true //stylelintで修正
   },
   "[markdown]": {
     "files.trimTrailingWhitespace": false // Markdown ファイルの末尾の空白を取り除く
