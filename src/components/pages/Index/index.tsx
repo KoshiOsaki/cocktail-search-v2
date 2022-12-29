@@ -1,6 +1,6 @@
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import { Autocomplete, Box, Checkbox, IconButton, MenuItem, Modal, Radio, Select, Slide, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, Checkbox, IconButton, MenuItem, Modal, Radio, Select, Tab, Tabs, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { ReactNode, useEffect, useState } from 'react';
@@ -190,11 +190,17 @@ export const IndexPage = () => {
         <OriginalCocktailTab cocktailList={filteredCocktailList} fetchDisplayData={fetchDisplayData} />
       </TabPanel>
       <div>
-        <Slide direction="up" in={isOpenAddModal} mountOnEnter unmountOnExit>
-          <div className="absolute z-10 top-0 left-0">
-            <CocktailAddModal setIsOpenAddModal={setIsOpenAddModal} fetchDisplayData={fetchDisplayData} />
-          </div>
-        </Slide>
+        {/* <Slide direction="up" in={isOpenAddModal} mountOnEnter unmountOnExit> */}
+        {/* <div className="absolute z-10 top-0 left-0"> */}
+        <CocktailAddModal
+          open={isOpenAddModal}
+          onClose={() => {
+            setIsOpenAddModal(false);
+          }}
+          fetchDisplayData={fetchDisplayData}
+        />
+        {/* </div> */}
+        {/* </Slide> */}
       </div>
       <IconButton
         sx={{ position: 'fixed', bottom: '30px', right: '30px' }}
