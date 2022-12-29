@@ -1,11 +1,15 @@
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { Autocomplete, Box, Checkbox, IconButton, MenuItem, Modal, Radio, Select, Slide, Tab, Tabs, TextField, Typography } from '@mui/material';
+import axios from 'axios';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { ReactNode, useEffect, useState } from 'react';
 import { FiFilter } from 'react-icons/fi';
 import { MdAddCircleOutline } from 'react-icons/md';
-import { useCocktails } from '../../../hooks/useCocktails';
+import { db } from '../../../firebase/init';
 import { useDebounce } from '../../../hooks/useDebounce';
+import { ApiType } from '../../../types/apiType';
+import { Cocktail, cocktailFromDoc, includeMaterialFromDoc, Material } from '../../../types/cocktail';
 import { Layout } from '../../uiParts/Layout';
 import { CocktailAddModal } from './CocktailAddModal';
 import { DefaultCocktailTab } from './DefaultCocktailTab';
@@ -23,9 +27,34 @@ const style = {
   p: 4,
 };
 
+const fetchIncludeMaterial = async (cocktailId: string) => {
+  const _materialList: Material[] = [];
+  const materialCollection = collection(db, 'cocktails', cocktailId, 'materials');
+  const materialQuery = query(materialCollection, orderBy('quantity', 'desc'));
+  const querySnapshot = await getDocs(materialQuery);
+  querySnapshot.forEach((doc) => {
+    const _material = includeMaterialFromDoc(doc);
+    _materialList.push(_material);
+  });
+  return _materialList;
+};
+
+const fetchCocktailList = async () => {
+  const _cocktailList: Cocktail[] = [];
+  const cocktailCollection = collection(db, 'cocktails');
+  const cocktailQuery = query(cocktailCollection);
+  const querySnapshot = await getDocs(cocktailQuery);
+  for (const doc of querySnapshot.docs) {
+    const _cocktail = cocktailFromDoc(doc);
+    const materialList = await fetchIncludeMaterial(_cocktail.id);
+    _cocktail.material = materialList;
+    _cocktailList.push(_cocktail);
+  }
+  return _cocktailList;
+};
+
 export const IndexPage = () => {
-  const { cocktailList } = useCocktails();
-  const mydata: any = [];
+  const [cocktailList, setCocktailList] = useState<Cocktail[]>([]);
   const [data, setData] = useState();
   const [findName, setFindName] = useState('');
   const [findMa, setFindMa] = useState('');
@@ -56,6 +85,22 @@ export const IndexPage = () => {
     setSortWay(e.target.value);
   };
 
+  const apiType = process.env.NEXT_PUBLIC_API_TYPE;
+
+  const fetchDisplayData = async () => {
+    if (apiType === ApiType.FIREBASE) {
+      const _cocktailList = await fetchCocktailList();
+      setCocktailList(_cocktailList);
+    } else if (apiType === ApiType.LOCALHOST) {
+      const { data } = await axios.get('http://localhost:3000/api/v1/cocktails', {
+        params: {},
+      });
+      console.log(data);
+    }
+  };
+
+  useEffect(() => void fetchDisplayData(), []);
+
   useEffect(() => {
     if (debouncedInputText) {
       console.log('絞り込み');
@@ -66,7 +111,7 @@ export const IndexPage = () => {
 
   return (
     <Layout>
-      <div className="flex ">
+      <div className="flex text-black">
         <div className="flex items-center">
           <Radio checked={selectedSearchItem == 0} onChange={handleSearchItem} value={0} name="radio-buttons" />
           <Typography>カクテル名</Typography>
@@ -76,8 +121,9 @@ export const IndexPage = () => {
           <Typography>材料名</Typography>
         </div>
       </div>
-      <div className="flex">
+      <div className="flex justify-between px-2">
         <Autocomplete
+          size="small"
           inputValue={searchInput}
           onInputChange={(event: any, newValue: string) => {
             setSearchInput(newValue);
@@ -127,22 +173,14 @@ export const IndexPage = () => {
         </Box>
       </Modal>
 
-      <Box display="flex" justifyContent="between" sx={{ borderBottom: 1, borderColor: 'divider', textColor: 'white' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" textColor="inherit">
-          <Tab label="既存カクテル" />
+      <Box display="flex" justifyContent="between" sx={{ borderBottom: 1, borderColor: 'divider', textColor: 'black' }}>
+        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" textColor="primary">
+          <Tab label="既存カクテル" sx={{ width: '50vw' }} />
           <Tab label="オリジナルカクテル" />
         </Tabs>
-        <IconButton
-          color="primary"
-          onClick={() => {
-            setIsOpenAddModal(true);
-          }}
-        >
-          <MdAddCircleOutline />
-        </IconButton>
       </Box>
       <TabPanel value={value} index={0}>
-        <DefaultCocktailTab cocktailList={cocktailList} />
+        <DefaultCocktailTab cocktailList={cocktailList} fetchDisplayData={fetchDisplayData} />
       </TabPanel>
       <TabPanel value={value} index={1}>
         <OriginalCocktailTab cocktailList={cocktailList} />
@@ -154,6 +192,15 @@ export const IndexPage = () => {
           </div>
         </Slide>
       </div>
+      <IconButton
+        sx={{ position: 'fixed', bottom: '30px', right: '30px' }}
+        color="primary"
+        onClick={() => {
+          setIsOpenAddModal(true);
+        }}
+      >
+        <MdAddCircleOutline />
+      </IconButton>
     </Layout>
   );
 };

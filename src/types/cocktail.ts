@@ -3,42 +3,39 @@ import { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 export const cocktailFromDoc = (doc: QueryDocumentSnapshot<DocumentData>) => {
   const _cocktail: Cocktail = {
     id: doc.id,
-    name: doc.data().name,
-    glass: doc.data().glass,
-    way: doc.data().way,
-    garnish: doc.data().garnish,
+    name: doc.data().name ?? '',
+    glass: doc.data().glass ?? '',
+    way: doc.data().way ?? '',
+    garnish: doc.data().garnish ?? '',
     material: [],
-    // materials: doc.data().materials,
-    isOriginal: doc.data().is_original,
-    imagePath: doc.data().image_path,
-    option: doc.data().option,
-    author: doc.data().author,
-    note: doc.data().note,
-    createdAt: new Date(doc.data()['created_at'].seconds * 1000),
-    updatedAt: new Date(doc.data()['updated_at'].seconds * 1000),
+    isOriginal: doc.data().is_original ?? false,
+    imagePath: doc.data().image_path ?? '',
+    option: doc.data().option ?? '',
+    author: doc.data().author ?? '',
+    note: doc.data().note ?? '',
   };
   const cocktail = JSON.parse(JSON.stringify(_cocktail));
   return cocktail;
 };
 
 export interface Cocktail {
-  id: string;
+  id?: string;
   name: string;
   glass: string;
   way: string;
-  garnish: string | null;
+  garnish: string;
   material: Material[];
   isOriginal: boolean;
   imagePath: string;
-  option: string | null;
+  option: string;
   author: string;
-  note: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  note?: string | null;
+  // createdAt: Date;
+  // updatedAt: Date;
 }
 
 export interface Material {
-  id: string;
+  id?: string;
   name: string;
   quantity?: string;
 }

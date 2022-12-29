@@ -3,27 +3,16 @@ import { CocktailCard } from './CocktailCard';
 
 interface Props {
   cocktailList: Cocktail[];
+  fetchDisplayData: () => void;
 }
 
 export const DefaultCocktailTab = (props: Props) => {
+  const { cocktailList, fetchDisplayData } = props;
   return (
     <>
-      <div className="grid grid-cols-3 sm:block">
-        {props.cocktailList.map((cocktail) => (
-          <CocktailCard
-            key={cocktail.id}
-            id={cocktail.id}
-            image={cocktail.imagePath || '/noimage.png'}
-            name={cocktail.name}
-            way={cocktail.way}
-            glass={cocktail.glass}
-            // material={cocktail.material}
-            garnish={cocktail.garnish!}
-            option={cocktail.option!}
-            note=""
-            author="大崎"
-            able={true}
-          />
+      <div className="flex flex-col space-y-3">
+        {cocktailList.map((cocktail, index) => (
+          <CocktailCard key={index} cocktail={cocktail} fetchDisplayData={fetchDisplayData} />
         ))}
       </div>
     </>
