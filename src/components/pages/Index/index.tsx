@@ -187,7 +187,7 @@ export const IndexPage = () => {
         <DefaultCocktailTab cocktailList={filteredCocktailList} fetchDisplayData={fetchDisplayData} />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <OriginalCocktailTab cocktailList={cocktailList} fetchDisplayData={fetchDisplayData} />
+        <OriginalCocktailTab cocktailList={filteredCocktailList} fetchDisplayData={fetchDisplayData} />
       </TabPanel>
       <div>
         <Slide direction="up" in={isOpenAddModal} mountOnEnter unmountOnExit>

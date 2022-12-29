@@ -11,7 +11,7 @@ export const OriginalCocktailTab = (props: Props) => {
   const { cocktailList, fetchDisplayData } = props;
   const [originalCocktailList, setOriginalCocktailList] = useState<Cocktail[]>([]);
   useEffect(() => {
-    const _originalCocktailList = props.cocktailList.filter((cocktail) => cocktail.isOriginal == true);
+    const _originalCocktailList = cocktailList.filter((cocktail) => cocktail.isOriginal == true);
     setOriginalCocktailList(_originalCocktailList);
   }, []);
 

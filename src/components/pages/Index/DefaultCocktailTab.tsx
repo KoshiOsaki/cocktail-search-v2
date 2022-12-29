@@ -11,9 +11,9 @@ export const DefaultCocktailTab = (props: Props) => {
   const { cocktailList, fetchDisplayData } = props;
   const [defaultCocktailList, setDefaultCocktailList] = useState<Cocktail[]>([]);
   useEffect(() => {
-    const _defaultCocktailList = props.cocktailList.filter((cocktail) => cocktail.isOriginal == false);
+    const _defaultCocktailList = cocktailList.filter((cocktail) => cocktail.isOriginal == false);
     setDefaultCocktailList(_defaultCocktailList);
-  }, []);
+  }, [cocktailList]);
   return (
     <>
       <div className="flex flex-col space-y-3">
