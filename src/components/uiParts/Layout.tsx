@@ -1,4 +1,4 @@
-import { IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { Button, IconButton, Menu, MenuItem, Modal, TextField, Typography } from '@mui/material';
 import Link from 'next/link';
 import { FC, useEffect, useState } from 'react';
 import { MdMenu } from 'react-icons/md';
@@ -8,10 +8,17 @@ export const Layout: FC = ({ children }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isNameEditOpen, setIsNameEditOpen] = useState<boolean>(false);
   const [nickname, setNickname] = useState<string | null>(null);
+  const [editedName, setEditedName] = useState<string>('');
   const open = Boolean(anchorEl);
   useEffect(() => {
     setNickname(localStorage.getItem('nickname'));
   }, []);
+
+  const onClickUpdateName = () => {
+    localStorage.setItem('nickname', editedName);
+    setNickname(editedName);
+    setIsNameEditOpen(false);
+  };
 
   return (
     <>
@@ -58,6 +65,16 @@ export const Layout: FC = ({ children }) => {
           </Typography>
         </footer>
       </div>
+      <Modal
+        open={isNameEditOpen}
+        onClose={() => setIsNameEditOpen(false)}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <div className="flex flex-col gap-y-4 p-4 w-[90vw] h-[70vh] overflow-y-scroll bg-white">
+          <TextField id="outlined-basic" label="ニックネーム" value={editedName} size="small" onChange={(e) => setEditedName(e.target.value)} />
+          <Button onClick={onClickUpdateName}>変更</Button>
+        </div>
+      </Modal>
     </>
   );
 };
